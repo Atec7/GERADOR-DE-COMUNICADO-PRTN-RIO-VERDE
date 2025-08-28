@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Comunicado</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde: #00C853;
+    --laranja: #FF6D00;
+    --preto: #121212;
+    --cinza-escuro: #1A1A1A;
+    --branco: #FFFFFF;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: var(--cinza-escuro);
+    color: var(--branco);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  h1 {
+    color: var(--laranja);
+    text-shadow: 1px 1px 4px var(--preto);
+    margin-bottom: 20px;
+  }
+
+  .form-container {
+    background: var(--preto);
+    padding: 20px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 0 20px #000a;
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  select, .editor-toolbar {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  button {
+    background: var(--verde);
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    color: var(--preto);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 5px;
+  }
+
+  button:hover {
+    background: #009624;
+  }
+
+  #comunicado {
+    background: linear-gradient(145deg, var(--preto), var(--cinza-escuro));
+    color: var(--branco);
+    width: 800px;
+    max-width: 100%;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 0 25px #000a;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #comunicado::before {
+    content: "⚡";
+    position: absolute;
+    font-size: 200px;
+    color: rgba(255, 255, 255, 0.05);
+    top: -50px;
+    left: -50px;
+    transform: rotate(-20deg);
+  }
+
+  #comunicado h2 {
+    color: var(--laranja);
+    margin-bottom: 10px;
+    font-size: 32px;
+    text-shadow: 1px 1px 4px var(--preto);
+  }
+
+  #comunicado .area {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: var(--verde);
+    font-weight: bold;
+  }
+
+  #comunicado .corpo {
+    text-align: left;
+    font-size: 18px;
+    line-height: 1.5;
+    min-height: 150px;
+    margin-bottom: 20px;
+  }
+
+  #comunicado .agradecimento,
+  #comunicado .footer {
+    text-align: center;
+    font-size: 14px;
+    font-style: italic;
+    margin-top: 10px;
+    color: var(--laranja);
+  }
+
+  #comunicado .marca {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  #comunicado img.anexo {
+    max-width: 50%;
+    border-radius: 50%;
+    margin: 15px auto;
+    display: block;
+    box-shadow: 0 0 10px #000a;
+  }
+
+  .editor-toolbar button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    font-weight: bold;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    background: var(--cinza-escuro);
+    color: var(--verde);
+  }
+
+  .editor-toolbar button:hover {
+    background: #333;
+  }
+
+  .emoji-picker {
+    margin-top: 5px;
+  }
+
+  .emoji-picker span {
+    cursor: pointer;
+    font-size: 20px;
+    margin-right: 5px;
+  }
+
+  #editor {
+    border: 1px solid #444;
+    border-radius: 6px;
+    min-height: 150px;
+    padding: 10px;
+    background: #1e1e1e;
+    color: var(--branco);
+  }
+
+  #preview-container {
+    display: none;
+    margin-top: 20px;
+    text-align: center;
+    max-width: 90%;
+    overflow: auto;
+    padding: 10px;
+    background: var(--cinza-escuro);
+    border-radius: 12px;
+  }
+
+  #preview-container h2 {
+    color: var(--laranja);
+  }
+
+  #preview-container canvas {
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 0 15px #000a;
+  }
+</style>
+</head>
+<body>
+
+<h1>Gerador de Comunicado</h1>
+
+<div class="form-container">
+  <label for="area">Área Emissora:</label>
+  <select id="area">
+    <option value="Informação e Performance">Informação e Performance</option>
+    <option value="Gerência de Serviços Técnicos e Comerciais">Gerência de Serviços Técnicos e Comerciais</option>
+  </select>
+
+  <label for="corpo">Corpo do Comunicado:</label>
+  <div class="editor-toolbar">
+    <button onclick="formatText('bold')"><b>B</b></button>
+    <button onclick="formatText('italic')"><i>I</i></button>
+    <button onclick="formatText('underline')"><u>U</u></button>
+    <button onclick="formatText('h1')">H1</button>
+    <button onclick="formatText('h2')">H2</button>
+    <button onclick="formatText('p')">Parágrafo</button>
+  </div>
+
+  <div id="editor" contenteditable="true" style="border:1px solid #444; border-radius:6px; min-height:150px; padding:10px; background:#1e1e1e; color:#fff;"></div>
+
+  <div class="emoji-picker">
+    <span onclick="insertEmoji('⚡')">⚡</span>
+    <span onclick="insertEmoji('💡')">💡</span>
+    <span onclick="insertEmoji('📢')">📢</span>
+    <span onclick="insertEmoji('✅')">✅</span>
+    <span onclick="insertEmoji('❗')">❗</span>
+  </div>
+
+  <label for="anexo">Anexar imagem:</label>
+  <input type="file" id="anexo" accept="image/*">
+
+  <button onclick="gerarComunicado()">Pré-visualizar Comunicado</button>
+</div>
+
+<div id="preview-container">
+  <h2>Pré-visualização</h2>
+  <canvas id="preview-canvas"></canvas>
+  <div style="margin-top:10px;">
+    <button onclick="baixarImagem()">Baixar Imagem</button>
+    <button onclick="continuarEditando()">Continuar Editando</button>
+  </div>
+</div>
+
+<div id="comunicado" style="display:none;">
+  <h2>COMUNICADO IMPORTANTE</h2>
+  <div class="area"></div>
+  <div class="corpo"></div>
+  <img class="anexo" src="" style="display:none;">
+  <div class="agradecimento"></div>
+  <div class="footer">Grupo Partnership Rio Verde-GO uma Nova Energia Rumo ao Futuro</div>
+  <div class="marca">Desenvolvido por Arnaldo S. Lima</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+let canvasDataURL = '';
+
+function formatText(command) {
+  if(command==='h1'||command==='h2'||command==='p'){
+    document.execCommand('formatBlock', false, command);
+  } else {
+    document.execCommand(command, false, null);
+  }
+}
+
+function insertEmoji(emoji){
+  document.getElementById('editor').innerHTML += emoji;
+}
+
+document.getElementById('anexo').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(event){
+      const img = document.querySelector('#comunicado img.anexo');
+      img.src = event.target.result;
+      img.style.display = 'block';
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+function gerarComunicado(){
+  const area = document.getElementById('area').value;
+  const corpo = document.getElementById('editor').innerHTML;
+  const comunicado = document.getElementById('comunicado');
+
+  comunicado.style.display = 'block';
+  comunicado.querySelector('.area').innerHTML = area;
+  comunicado.querySelector('.corpo').innerHTML = corpo;
+  comunicado.querySelector('.agradecimento').innerHTML = `O setor de ${area} agradece e conta desde já com o apoio de todos.`;
+
+  html2canvas(comunicado,{backgroundColor:null, scale:2}).then(canvas=>{
+    canvasDataURL = canvas.toDataURL('image/png');
+
+    const previewCanvas = document.getElementById('preview-canvas');
+    previewCanvas.width = canvas.width;
+    previewCanvas.height = canvas.height;
+    const ctx = previewCanvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(canvas,0,0,canvas.width,canvas.height);
+
+    document.getElementById('preview-container').style.display = 'block';
+    comunicado.style.display = 'none';
+  });
+}
+
+function baixarImagem(){
+  const titulo = document.querySelector('#comunicado h2').innerText.replace(/ /g,'_');
+  const data = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+  const link = document.createElement('a');
+  link.download = `COMUNICADO_IMPORTANTE_${titulo}_${data}.png`;
+  link.href = canvasDataURL;
+  link.click();
+}
+
+function continuarEditando(){
+  document.getElementById('preview-container').style.display='none';
+}
+</script>
+
+</body>
+</html>
